@@ -32,7 +32,13 @@ cmdclass = {"build_py": BuildWithNative}
 
 try:
     from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+except ImportError:
+    try:
+        from setuptools.command.bdist_wheel import bdist_wheel as _bdist_wheel
+    except ImportError:
+        _bdist_wheel = None
 
+if _bdist_wheel is not None:
     class bdist_wheel(_bdist_wheel):
         def finalize_options(self):
             super().finalize_options()
@@ -42,11 +48,16 @@ try:
         def get_tag(self):
             # ABI-independent: works across any Python 3.9+ interpreter on the target OS/architecture
             _, _, plat = super().get_tag()
+            plat_override = os.environ.get("QRIG_PLAT_NAME")
+            if plat_override:
+                plat = plat_override
+            elif plat.startswith("linux_x86_64"):
+                plat = "manylinux2014_x86_64"
+            elif plat.startswith("linux_aarch64"):
+                plat = "manylinux2014_aarch64"
             return "py3", "none", plat
 
     cmdclass["bdist_wheel"] = bdist_wheel
-except ImportError:
-    pass
 
 
 setup(cmdclass=cmdclass)

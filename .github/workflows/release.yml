@@ -76,6 +76,8 @@ jobs:
           python build_native.py --no-lake
 
       - name: Build wheel
+        env:
+          QRIG_PLAT_NAME: ${{ matrix.platform_tag }}
         shell: bash
         run: |
           python -m pip install --upgrade pip build wheel
