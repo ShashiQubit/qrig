@@ -65,7 +65,13 @@ def find_toolchain(explicit: str | None) -> str:
 
 def run(cmd, **kw):
     print("+", " ".join(cmd), flush=True)
-    subprocess.check_call(cmd, **kw)
+    res = subprocess.run(cmd, capture_output=True, text=True, **kw)
+    if res.stdout:
+        print(res.stdout, flush=True)
+    if res.stderr:
+        print(res.stderr, file=sys.stderr, flush=True)
+    if res.returncode != 0:
+        raise subprocess.CalledProcessError(res.returncode, cmd, output=res.stdout, stderr=res.stderr)
 
 
 def _find_lib(tc: str, name: str) -> str:
@@ -120,29 +126,40 @@ def main() -> int:
     gen_c = [f.replace("\\", "/") for f in gen_c]
     inc = inc.replace("\\", "/")
     flags = ["-O2", "-w", "-I", inc]
+    if IS_WIN and os.path.exists("C:/msys64/mingw64/include"):
+        flags.extend(["-isystem", "C:/msys64/mingw64/include"])
 
     # Static runtime archives from Lean
-    candidate_libs = [
-        _find_lib(tc, "libInit.a"),
-        _find_lib(tc, "libleanrt.a"),
-        _find_lib(tc, "libleancpp.a"),
-        _find_lib(tc, "libuv.a"),
-        _find_lib(tc, "libgmp.a"),
-        _find_lib(tc, "libc++.a"),
-        _find_lib(tc, "libc++abi.a"),
-    ]
-    static_libs = [p.replace("\\", "/") for p in candidate_libs if os.path.exists(p)]
-
-    # OS-specific link flags
-    leanc_bin = os.path.join(tc, "bin", "leanc.exe" if IS_WIN else "leanc")
     if IS_WIN:
+        candidate_libs = [
+            _find_lib(tc, "libInit.a"),
+            _find_lib(tc, "libleanrt.a"),
+            _find_lib(tc, "libleancpp.a"),
+            _find_lib(tc, "libuv.a"),
+            _find_lib(tc, "libgmp.a"),
+            _find_lib(tc, "libicu.a"),
+            _find_lib(tc, "libc++.a"),
+            _find_lib(tc, "libssl.a"),
+            _find_lib(tc, "libcrypto.a"),
+            _find_lib(tc, "libunwind.a"),
+        ]
         sys_flags = [
+            "-Wl,--allow-multiple-definition",
             "-lws2_32", "-lbcrypt", "-luserenv", "-lpsapi", "-liphlpapi",
-            "-ldbghelp", "-lole32", "-lshell32", "-luser32", "-ladvapi32", "-lm", "-lstdc++"
+            "-ldbghelp", "-lole32", "-lshell32", "-luser32", "-ladvapi32",
+            "-lgdi32", "-lcrypt32", "-lucrtbase", "-lm", "-lstdc++"
         ]
         exe_name = "qrig-core.exe"
         so_name = "libqrig.dll"
     elif IS_MAC:
+        candidate_libs = [
+            _find_lib(tc, "libInit.a"),
+            _find_lib(tc, "libleanrt.a"),
+            _find_lib(tc, "libuv.a"),
+            _find_lib(tc, "libgmp.a"),
+            _find_lib(tc, "libc++.a"),
+            _find_lib(tc, "libc++abi.a"),
+        ]
         sys_flags = [
             "-lpthread", "-lm", "-lc++",
             "-framework", "CoreFoundation",
@@ -151,9 +168,22 @@ def main() -> int:
         exe_name = "qrig-core"
         so_name = "libqrig.dylib"
     else:  # Linux / POSIX
+        candidate_libs = [
+            _find_lib(tc, "libInit.a"),
+            _find_lib(tc, "libleanrt.a"),
+            _find_lib(tc, "libuv.a"),
+            _find_lib(tc, "libgmp.a"),
+            _find_lib(tc, "libc++.a"),
+            _find_lib(tc, "libc++abi.a"),
+        ]
         sys_flags = ["-lpthread", "-ldl", "-lm", "-s"]
         exe_name = "qrig-core"
         so_name = "libqrig.so"
+
+    static_libs = [p.replace("\\", "/") for p in candidate_libs if os.path.exists(p)]
+
+    # OS-specific link flags
+    leanc_bin = os.path.join(tc, "bin", "leanc.exe" if IS_WIN else "leanc")
 
     # 1. self-contained executable
     exe = os.path.join(BIN, exe_name).replace("\\", "/")
@@ -161,7 +191,8 @@ def main() -> int:
     if os.path.exists(leanc_bin):
         try:
             print(f"trying leanc driver ({leanc_bin})...", flush=True)
-            run([leanc_bin, "-O2", "-w", main_c, shim, *gen_c, "-o", exe])
+            extra_inc = ["-I", "C:/msys64/mingw64/include"] if IS_WIN and os.path.exists("C:/msys64/mingw64/include") else []
+            run([leanc_bin, "-O2", "-w", *extra_inc, main_c, shim, *gen_c, "-o", exe])
             built_with_leanc = True
         except Exception as e:
             print(f"leanc failed ({e}), falling back to direct compilation...", flush=True)
