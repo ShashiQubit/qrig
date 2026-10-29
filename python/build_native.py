@@ -131,15 +131,20 @@ def main() -> int:
     static_libs = [p for p in candidate_libs if os.path.exists(p)]
 
     # OS-specific link flags
+    leanc_bin = os.path.join(tc, "bin", "leanc.exe" if IS_WIN else "leanc")
     if IS_WIN:
         sys_flags = [
             "-lws2_32", "-lbcrypt", "-luserenv", "-lpsapi", "-liphlpapi",
-            "-ldbghelp", "-lole32", "-lshell32", "-luser32", "-ladvapi32", "-lm"
+            "-ldbghelp", "-lole32", "-lshell32", "-luser32", "-ladvapi32", "-lm", "-lstdc++"
         ]
         exe_name = "qrig-core.exe"
         so_name = "libqrig.dll"
     elif IS_MAC:
-        sys_flags = ["-lpthread", "-lm"]
+        sys_flags = [
+            "-lpthread", "-lm", "-lc++",
+            "-framework", "CoreFoundation",
+            "-framework", "CoreServices"
+        ]
         exe_name = "qrig-core"
         so_name = "libqrig.dylib"
     else:  # Linux / POSIX
@@ -149,7 +154,17 @@ def main() -> int:
 
     # 1. self-contained executable
     exe = os.path.join(BIN, exe_name)
-    run([args.cc, *flags, main_c, shim, *gen_c, "-o", exe, *static_libs, *sys_flags])
+    built_with_leanc = False
+    if IS_MAC and os.path.exists(leanc_bin):
+        try:
+            print("trying leanc driver for macOS...", flush=True)
+            run([leanc_bin, "-O2", "-w", main_c, shim, *gen_c, "-o", exe])
+            built_with_leanc = True
+        except Exception as e:
+            print(f"leanc failed ({e}), falling back to {args.cc}...", flush=True)
+
+    if not built_with_leanc:
+        run([args.cc, *flags, main_c, shim, *gen_c, "-o", exe, *static_libs, *sys_flags])
 
     # 2. optional in-process shared library
     shared_candidate = None

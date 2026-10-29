@@ -49,20 +49,24 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          curl.exe -sSf -L https://elan.lean-lang.org/elan-init.ps1 -o elan-init.ps1
-          powershell -ExecutionPolicy Bypass -f elan-init.ps1 -y --default-toolchain (Get-Content lean-toolchain).Trim()
-          Remove-Item elan-init.ps1
-          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\.elan\bin"
+          Invoke-WebRequest -Uri "https://github.com/leanprover/elan/releases/latest/download/elan-x86_64-pc-windows-msvc.zip" -OutFile "$env:TEMP\elan.zip"
+          Expand-Archive "$env:TEMP\elan.zip" -DestinationPath "$env:USERPROFILE\.elan\bin" -Force
+          $tc = (Get-Content lean-toolchain).Trim()
+          & "$env:USERPROFILE\.elan\bin\elan.exe" toolchain install $tc
+          & "$env:USERPROFILE\.elan\bin\elan.exe" default $tc
+          "$env:USERPROFILE\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Verify Lean & Lake
         shell: bash
         run: |
+          export PATH="$HOME/.elan/bin:$PATH"
           lean --version
           lean --print-prefix
 
       - name: Compile native core
         shell: bash
         run: |
+          export PATH="$HOME/.elan/bin:$PATH"
           cd python
           python build_native.py --no-lake
 
@@ -84,5 +88,6 @@ jobs:
       - name: Run test suite
         shell: bash
         run: |
+          export PATH="$HOME/.elan/bin:$PATH"
           cd python
           python -m pytest -v tests
