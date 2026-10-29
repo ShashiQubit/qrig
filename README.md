@@ -55,6 +55,33 @@ python3 benchmarks/noise_benchmark.py        # fidelity under noise with / witho
 See `python/README.md` for the API, the list of proved theorems, and the parts that are
 tested but not formally verified.
 
+## Empirical Evaluation & Results
+
+The optimization pipeline and noise robustness were evaluated across 130 circuits from MQT Bench and application kernels, cross-checked against TKET and BQSKit on all-to-all target models (CX, CZ, and RXX).
+
+### Two-Qubit Gate Count Reduction
+Running `qrig` prior to Qiskit Level-3 optimization eliminates redundant controls and simplifies multi-controlled structures:
+![Two-Qubit Gate Reductions](report/figures/fig1_twoq_all_circuits.png)
+
+### State Fidelity under Noise
+Removing controlled-gate overhead directly improves output state fidelity under realistic device noise:
+![Fidelity Comparison](report/figures/fig2_fidelity.png)
+
+### Fidelity vs. Noise Scaling
+Fidelity advantages persist consistently across a wide range of physical error rates:
+![Noise Scaling](report/figures/fig3_noise_scale.png)
+
+### Error Sensitivity & Execution Time
+Comparison across noise channels (depolarizing, amplitude damping, phase damping) and transpiler pass execution time:
+
+| Error Channel Sensitivity | Pass Execution Time |
+| :---: | :---: |
+| ![Noise Type](report/figures/fig4_noise_type.png) | ![Execution Time](report/figures/fig5_time.png) |
+
+## Authors & Contributors
+
+- **Shashi Kumar** — Core implementation, cross-platform architecture, benchmarking pipeline, and package release.
+
 ## Citation
 
 This package is based on the equational theory of controlled quantum circuits developed in:

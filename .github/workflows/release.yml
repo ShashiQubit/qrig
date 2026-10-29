@@ -34,8 +34,6 @@ jobs:
         include:
           - os: ubuntu-latest
             platform_tag: manylinux2014_x86_64
-          - os: macos-13
-            platform_tag: macosx_10_9_x86_64
           - os: macos-14
             platform_tag: macosx_11_0_arm64
           - os: windows-latest

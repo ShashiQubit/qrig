@@ -10,7 +10,10 @@ readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.9"
 authors = [
-    {name = "QRig Contributors"}
+    {name = "Shashi Kumar"}
+]
+maintainers = [
+    {name = "Shashi Kumar"}
 ]
 keywords = [
     "quantum",

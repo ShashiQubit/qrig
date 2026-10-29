@@ -152,6 +152,8 @@ large CNOT savings (29–100 %) on circuits with structured multi-controlled gat
 no change on unstructured or library circuits, and the Gray-code permutation synthesis
 is *not* competitive on gate count. See [`benchmarks/README.md`](benchmarks/README.md).
 
+![Benchmark comparison](benchmarks/benchmark.png)
+
 ## Noise: how much error does qrig remove?
 
 `benchmarks/noise_benchmark.py` simulates the compiled circuits with and without qrig
@@ -168,6 +170,8 @@ model with assumed parameters), which removes any routing/topology bias, Grover 
 improves too (4 % and 13 % of the error removed) and most other gains are similar or
 larger. See [`benchmarks/NOISE.md`](benchmarks/NOISE.md).
 
+![Noise benchmark](benchmarks/noise_benchmark.png)
+
 ## Tests
 
 ```bash
@@ -180,6 +184,10 @@ gates, random circuits, imports of random and library Qiskit circuits, all contr
 equations of the paper, the Sleator–Weinfurter identity, all 3-bit permutations for
 synthesis, the optimiser (random circuits, inverses, the Qiskit pass), error handling,
 serialisation round trips and both backends.
+
+## Authors & Contributors
+
+- **Shashi Kumar** — Core implementation, cross-platform architecture, benchmarks, and packaging.
 
 ## Citation
 
