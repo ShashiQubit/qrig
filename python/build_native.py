@@ -115,20 +115,23 @@ def main() -> int:
         return 1
     os.makedirs(BIN, exist_ok=True)
     csrc = os.path.join(HERE, "csrc")
-    shim = os.path.join(csrc, "qrig_shim.c")
-    main_c = os.path.join(csrc, "qrig_main.c")
+    shim = os.path.join(csrc, "qrig_shim.c").replace("\\", "/")
+    main_c = os.path.join(csrc, "qrig_main.c").replace("\\", "/")
+    gen_c = [f.replace("\\", "/") for f in gen_c]
+    inc = inc.replace("\\", "/")
     flags = ["-O2", "-w", "-I", inc]
 
     # Static runtime archives from Lean
     candidate_libs = [
         _find_lib(tc, "libInit.a"),
         _find_lib(tc, "libleanrt.a"),
+        _find_lib(tc, "libleancpp.a"),
         _find_lib(tc, "libuv.a"),
         _find_lib(tc, "libgmp.a"),
         _find_lib(tc, "libc++.a"),
         _find_lib(tc, "libc++abi.a"),
     ]
-    static_libs = [p for p in candidate_libs if os.path.exists(p)]
+    static_libs = [p.replace("\\", "/") for p in candidate_libs if os.path.exists(p)]
 
     # OS-specific link flags
     leanc_bin = os.path.join(tc, "bin", "leanc.exe" if IS_WIN else "leanc")
@@ -153,18 +156,22 @@ def main() -> int:
         so_name = "libqrig.so"
 
     # 1. self-contained executable
-    exe = os.path.join(BIN, exe_name)
+    exe = os.path.join(BIN, exe_name).replace("\\", "/")
     built_with_leanc = False
-    if IS_MAC and os.path.exists(leanc_bin):
+    if os.path.exists(leanc_bin):
         try:
-            print("trying leanc driver for macOS...", flush=True)
+            print(f"trying leanc driver ({leanc_bin})...", flush=True)
             run([leanc_bin, "-O2", "-w", main_c, shim, *gen_c, "-o", exe])
             built_with_leanc = True
         except Exception as e:
-            print(f"leanc failed ({e}), falling back to {args.cc}...", flush=True)
+            print(f"leanc failed ({e}), falling back to direct compilation...", flush=True)
 
     if not built_with_leanc:
-        run([args.cc, *flags, main_c, shim, *gen_c, "-o", exe, *static_libs, *sys_flags])
+        if IS_WIN:
+            link_args = ["-Wl,--start-group", *static_libs, "-Wl,--end-group", *sys_flags]
+        else:
+            link_args = [*static_libs, *sys_flags]
+        run([args.cc, *flags, main_c, shim, *gen_c, "-o", exe, *link_args])
 
     # 2. optional in-process shared library
     shared_candidate = None
