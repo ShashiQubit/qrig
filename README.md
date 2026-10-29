@@ -54,3 +54,20 @@ python3 benchmarks/noise_benchmark.py        # fidelity under noise with / witho
 
 See `python/README.md` for the API, the list of proved theorems, and the parts that are
 tested but not formally verified.
+
+## Citation
+
+This package is based on the equational theory of controlled quantum circuits developed in:
+
+> Chris Heunen, Robin Kaarsgaard, and Nicolas Lemonnier.  
+> **One rig to control them all**. arXiv:2510.05032 [quant-ph], 2025.  
+> [https://arxiv.org/abs/2510.05032](https://arxiv.org/abs/2510.05032)
+
+```bibtex
+@article{heunen2025rig,
+  title={One rig to control them all},
+  author={Heunen, Chris and Kaarsgaard, Robin and Lemonnier, Nicolas},
+  journal={arXiv preprint arXiv:2510.05032},
+  year={2025}
+}
+```

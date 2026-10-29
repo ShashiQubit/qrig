@@ -50,10 +50,9 @@ jobs:
         shell: pwsh
         run: |
           Invoke-WebRequest -Uri "https://github.com/leanprover/elan/releases/latest/download/elan-x86_64-pc-windows-msvc.zip" -OutFile "$env:TEMP\elan.zip"
-          Expand-Archive "$env:TEMP\elan.zip" -DestinationPath "$env:USERPROFILE\.elan\bin" -Force
+          Expand-Archive "$env:TEMP\elan.zip" -DestinationPath "$env:TEMP\elan-setup" -Force
           $tc = (Get-Content lean-toolchain).Trim()
-          & "$env:USERPROFILE\.elan\bin\elan.exe" toolchain install $tc
-          & "$env:USERPROFILE\.elan\bin\elan.exe" default $tc
+          & "$env:TEMP\elan-setup\elan-init.exe" -y --default-toolchain $tc
           "$env:USERPROFILE\.elan\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Verify Lean & Lake

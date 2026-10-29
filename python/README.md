@@ -180,3 +180,14 @@ gates, random circuits, imports of random and library Qiskit circuits, all contr
 equations of the paper, the Sleator–Weinfurter identity, all 3-bit permutations for
 synthesis, the optimiser (random circuits, inverses, the Qiskit pass), error handling,
 serialisation round trips and both backends.
+
+## Citation
+
+```bibtex
+@article{heunen2025rig,
+  title={One rig to control them all},
+  author={Heunen, Chris and Kaarsgaard, Robin and Lemonnier, Nicolas},
+  journal={arXiv preprint arXiv:2510.05032},
+  year={2025}
+}
+```
