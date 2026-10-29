@@ -48,9 +48,9 @@ mqt = ["qiskit>=1.0", "mqt.bench", "mqt.qcec"]
 noise = ["qiskit>=1.0", "qiskit-aer", "qiskit-ibm-runtime", "mqt.bench", "matplotlib"]
 
 [project.urls]
-Homepage = "https://github.com/qrig-project/qrig"
-Repository = "https://github.com/qrig-project/qrig"
-Documentation = "https://github.com/qrig-project/qrig#readme"
+Homepage = "https://github.com/ShashiQubit/qrig"
+Repository = "https://github.com/ShashiQubit/qrig"
+Documentation = "https://github.com/ShashiQubit/qrig#readme"
 
 [tool.setuptools]
 packages = ["qrig"]

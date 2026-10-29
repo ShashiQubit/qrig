@@ -14,11 +14,6 @@ on:
         options:
           - testpypi
           - pypi
-      dry_run:
-        description: "Dry run (build and test only, do not upload)"
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: write
@@ -141,6 +136,9 @@ jobs:
     name: Publish to PyPI / TestPyPI
     needs: [build-wheels, build-sdist]
     runs-on: ubuntu-latest
+    env:
+      TEST_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
     steps:
       - name: Download all built artifacts
         uses: actions/download-artifact@v4
@@ -153,45 +151,44 @@ jobs:
         run: |
           ls -lah dist-merged/
 
-      - name: Determine publish target
-        id: target
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "target=${{ github.event.inputs.target }}" >> $GITHUB_OUTPUT
-            echo "dry_run=${{ github.event.inputs.dry_run }}" >> $GITHUB_OUTPUT
-          else
-            # For tag pushes:
-            # Tags containing 'rc', 'dev', 'alpha', 'beta', or 'test' go to TestPyPI
-            TAG="${{ github.ref_name }}"
-            if echo "$TAG" | grep -Ei "rc|dev|alpha|beta|test"; then
-              echo "target=testpypi" >> $GITHUB_OUTPUT
-            else
-              echo "target=pypi" >> $GITHUB_OUTPUT
-            fi
-            echo "dry_run=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Publish to TestPyPI
-        if: steps.target.outputs.dry_run == 'false' && steps.target.outputs.target == 'testpypi'
+      # TestPyPI via API Token
+      - name: Publish to TestPyPI (Token)
+        if: ((github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi') || (github.event_name == 'push' && contains(github.ref_name, 'rc'))) && env.TEST_TOKEN != ''
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
           packages-dir: dist-merged/
           skip-existing: true
-          # Works with PyPI Trusted Publishing or API token stored in secrets
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
 
-      - name: Publish to PyPI
-        if: steps.target.outputs.dry_run == 'false' && steps.target.outputs.target == 'pypi'
+      # TestPyPI via Trusted Publishing (OIDC)
+      - name: Publish to TestPyPI (OIDC)
+        if: ((github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi') || (github.event_name == 'push' && contains(github.ref_name, 'rc'))) && env.TEST_TOKEN == ''
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist-merged/
+          skip-existing: true
+
+      # Production PyPI via API Token
+      - name: Publish to PyPI (Token)
+        if: ((github.event_name == 'workflow_dispatch' && inputs.target == 'pypi') || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, 'rc'))) && env.PYPI_TOKEN != ''
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist-merged/
           skip-existing: true
-          # Works with PyPI Trusted Publishing or API token stored in secrets
           password: ${{ secrets.PYPI_API_TOKEN }}
 
+      # Production PyPI via Trusted Publishing (OIDC)
+      - name: Publish to PyPI (OIDC)
+        if: ((github.event_name == 'workflow_dispatch' && inputs.target == 'pypi') || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, 'rc'))) && env.PYPI_TOKEN == ''
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist-merged/
+          skip-existing: true
+
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v') && steps.target.outputs.dry_run == 'false'
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           files: dist-merged/*
