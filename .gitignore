@@ -50,6 +50,7 @@ paper/
 *.zip
 *.tar.gz
 QRIG_tar.gz
+ARISTOTLE_SUMMARY.md
 
 # OS artifacts
 .DS_Store
