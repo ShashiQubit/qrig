@@ -50,14 +50,29 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Set up Lean 4
-        uses: leanprover/action-elan@v1
-
       - name: Set up MSYS2 MinGW-w64 (Windows)
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
+          install: mingw-w64-x86_64-gcc
+          path-type: inherit
+
+      - name: Install Lean 4 via elan (Linux & macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain $(cat lean-toolchain)
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Install Lean 4 via elan (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          curl.exe -sSf -L https://elan.lean-lang.org/elan-init.ps1 -o elan-init.ps1
+          powershell -ExecutionPolicy Bypass -f elan-init.ps1 -y --default-toolchain (Get-Content lean-toolchain).Trim()
+          Remove-Item elan-init.ps1
+          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\.elan\bin"
           install: mingw-w64-x86_64-gcc
           path-type: inherit
 

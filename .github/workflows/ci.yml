@@ -19,17 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-13, macos-14, windows-latest]
-        python-version: ["3.10", "3.11", "3.12"]
-        include:
-          # Test Python 3.9 and 3.13 on Ubuntu and Windows
-          - os: ubuntu-latest
-            python-version: "3.9"
-          - os: ubuntu-latest
-            python-version: "3.13"
-          - os: windows-latest
-            python-version: "3.9"
-          - os: windows-latest
-            python-version: "3.13"
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout repository
@@ -40,9 +30,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Set up Lean 4
-        uses: leanprover/action-elan@v1
-
       - name: Set up MSYS2 MinGW-w64 (Windows)
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
@@ -50,6 +37,28 @@ jobs:
           msystem: MINGW64
           install: mingw-w64-x86_64-gcc
           path-type: inherit
+
+      - name: Install Lean 4 via elan (Linux & macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain $(cat lean-toolchain)
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Install Lean 4 via elan (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          curl.exe -sSf -L https://elan.lean-lang.org/elan-init.ps1 -o elan-init.ps1
+          powershell -ExecutionPolicy Bypass -f elan-init.ps1 -y --default-toolchain (Get-Content lean-toolchain).Trim()
+          Remove-Item elan-init.ps1
+          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\.elan\bin"
+
+      - name: Verify Lean & Lake
+        shell: bash
+        run: |
+          lean --version
+          lean --print-prefix
 
       - name: Compile native core
         shell: bash

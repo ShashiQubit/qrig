@@ -120,7 +120,7 @@ def main() -> int:
     flags = ["-O2", "-w", "-I", inc]
 
     # Static runtime archives from Lean
-    static_libs = [
+    candidate_libs = [
         _find_lib(tc, "libInit.a"),
         _find_lib(tc, "libleanrt.a"),
         _find_lib(tc, "libuv.a"),
@@ -128,6 +128,7 @@ def main() -> int:
         _find_lib(tc, "libc++.a"),
         _find_lib(tc, "libc++abi.a"),
     ]
+    static_libs = [p for p in candidate_libs if os.path.exists(p)]
 
     # OS-specific link flags
     if IS_WIN:
