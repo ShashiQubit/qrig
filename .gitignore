@@ -1,0 +1,63 @@
+# Lean 4
+.lake/
+*.olean
+*.ilean
+*.ir
+*.sig
+
+# Compiled binaries and libraries
+*.so
+*.dylib
+*.dll
+*.exe
+*.o
+*.obj
+*.a
+*.lib
+python/qrig/_bin/*
+!python/qrig/_bin/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.venv/
+env/
+venv/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Papers and publications (excluded from repository)
+paper/
+*.pdf
+*.zip
+*.tar.gz
+QRIG_tar.gz
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~

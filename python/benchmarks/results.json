@@ -1,0 +1,227 @@
+{
+  "qiskit": "2.5.2",
+  "qrig": "1.0.0",
+  "seed": 20260925,
+  "workloads": [
+    {
+      "family": "Random controlled Clifford+T (4q, 40 gates)",
+      "note": "unstructured: little for qrig to find",
+      "samples": 10,
+      "before": {
+        "cx": 213.6,
+        "gates": 476.8,
+        "depth": 369.0
+      },
+      "after": {
+        "cx": 214.2,
+        "gates": 478.7,
+        "depth": 370.4
+      }
+    },
+    {
+      "family": "Grover (Qiskit library), 5q, 2 iterations",
+      "note": "no adjacent controlled gates qrig can merge",
+      "samples": 1,
+      "before": {
+        "cx": 144.0,
+        "gates": 318.0,
+        "depth": 257.0
+      },
+      "after": {
+        "cx": 144.0,
+        "gates": 318.0,
+        "depth": 257.0
+      }
+    },
+    {
+      "family": "Multiplexer, 4 controls, repeated branches",
+      "note": "equation (e) C0(f);C1(f) = id+f, and (a)",
+      "samples": 5,
+      "before": {
+        "cx": 601.6,
+        "gates": 1282.0,
+        "depth": 1019.6
+      },
+      "after": {
+        "cx": 287.8,
+        "gates": 621.0,
+        "depth": 468.4
+      }
+    },
+    {
+      "family": "Repeated controlled phase C^3(T) x4",
+      "note": "equation (a) C(f);C(g) = C(f;g), T^4 = Z",
+      "samples": 1,
+      "before": {
+        "cx": 80.0,
+        "gates": 166.0,
+        "depth": 126.0
+      },
+      "after": {
+        "cx": 14.0,
+        "gates": 32.0,
+        "depth": 27.0
+      }
+    },
+    {
+      "family": "Compute/uncompute U;U^-1 (4q, 30 gates)",
+      "note": "stack-wise cancellation of controlled gates",
+      "samples": 5,
+      "before": {
+        "cx": 313.8,
+        "gates": 694.8,
+        "depth": 541.6
+      },
+      "after": {
+        "cx": 222.8,
+        "gates": 490.8,
+        "depth": 381.2
+      }
+    },
+    {
+      "family": "C^3(H);C^3(V);C^3(V^-1);C^3(H)",
+      "note": "equation (a) + one-qubit gate fusion",
+      "samples": 1,
+      "before": {
+        "cx": 64.0,
+        "gates": 143.0,
+        "depth": 115.0
+      },
+      "after": {
+        "cx": 0.0,
+        "gates": 0.0,
+        "depth": 0.0
+      }
+    }
+  ],
+  "multiplexer": [
+    {
+      "controls": 2,
+      "before": {
+        "cx": 24.0,
+        "gates": 60.0,
+        "depth": 45.333333333333336
+      },
+      "after": {
+        "cx": 4.333333333333333,
+        "gates": 12.0,
+        "depth": 9.666666666666666
+      }
+    },
+    {
+      "controls": 3,
+      "before": {
+        "cx": 121.33333333333333,
+        "gates": 256.0,
+        "depth": 213.66666666666666
+      },
+      "after": {
+        "cx": 51.333333333333336,
+        "gates": 117.33333333333333,
+        "depth": 90.66666666666667
+      }
+    },
+    {
+      "controls": 4,
+      "before": {
+        "cx": 608.0,
+        "gates": 1289.3333333333333,
+        "depth": 1025.6666666666667
+      },
+      "after": {
+        "cx": 246.33333333333334,
+        "gates": 527.3333333333334,
+        "depth": 401.0
+      }
+    },
+    {
+      "controls": 5,
+      "before": {
+        "cx": 2626.0,
+        "gates": 5461.333333333333,
+        "depth": 4065.6666666666665
+      },
+      "after": {
+        "cx": 1302.0,
+        "gates": 2740.3333333333335,
+        "depth": 2075.3333333333335
+      }
+    },
+    {
+      "controls": 6,
+      "before": {
+        "cx": 8196.0,
+        "gates": 17436.666666666668,
+        "depth": 11979.333333333334
+      },
+      "after": {
+        "cx": 3933.3333333333335,
+        "gates": 8310.666666666666,
+        "depth": 5744.666666666667
+      }
+    }
+  ],
+  "synthesis": [
+    {
+      "qubits": 2,
+      "qiskit": 1.0,
+      "qrig": 2.0,
+      "qrig_simplified": 2.0
+    },
+    {
+      "qubits": 3,
+      "qiskit": 18.666666666666668,
+      "qrig": 175.0,
+      "qrig_simplified": 175.0
+    },
+    {
+      "qubits": 4,
+      "qiskit": 95.0,
+      "qrig": 4028.6666666666665,
+      "qrig_simplified": 4028.6666666666665
+    },
+    {
+      "qubits": 5,
+      "qiskit": 423.0,
+      "qrig": 43718.666666666664,
+      "qrig_simplified": 43718.666666666664
+    }
+  ],
+  "runtime": [
+    {
+      "qubits": 2,
+      "qrig_equiv_s": 0.020644299000196042,
+      "qiskit_equiv_s": 0.1410748179998791,
+      "qrig_optimize_s": 0.02597850000006474,
+      "qiskit_transpile_s": 0.014496719999897323
+    },
+    {
+      "qubits": 3,
+      "qrig_equiv_s": 0.06470068900011938,
+      "qiskit_equiv_s": 0.056677248999903895,
+      "qrig_optimize_s": 0.030457700000170007,
+      "qiskit_transpile_s": 0.03683559899991451
+    },
+    {
+      "qubits": 4,
+      "qrig_equiv_s": 0.2023373869999432,
+      "qiskit_equiv_s": 0.13507457800005795,
+      "qrig_optimize_s": 0.040120938999962164,
+      "qiskit_transpile_s": 0.03898674900005972
+    },
+    {
+      "qubits": 5,
+      "qrig_equiv_s": 0.9444752540000536,
+      "qiskit_equiv_s": 0.18219411699988086,
+      "qrig_optimize_s": 0.10785739800007832,
+      "qiskit_transpile_s": 0.0390990089999832
+    },
+    {
+      "qubits": 6,
+      "qrig_equiv_s": 4.056658189000018,
+      "qiskit_equiv_s": 0.26057841600004394,
+      "qrig_optimize_s": 0.08401986800004124,
+      "qiskit_transpile_s": 0.043358520000083445
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+name = "RequestProject"
+defaultTargets = ["RequestProject", "Qrig", "QrigProofs"]
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "v4.28.0"
+
+[[lean_lib]]
+name = "RequestProject"
+globs = ["RequestProject.+"]
+
+# Executable, Mathlib-free core of the `qrig` module (compiled to C).
+[[lean_lib]]
+name = "Qrig"
+globs = ["Qrig.*"]
+
+# Machine-checked correctness proofs about the core.
+[[lean_lib]]
+name = "QrigProofs"
+globs = ["QrigProofs.+"]
